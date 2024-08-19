@@ -1,9 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "board.h"
+#include <random>
 
 const int gridWidth = 10;
 const int gridHeight = 20;
+bool gameOver = false;
 
 std::vector<std::vector<std::vector<int>>> tetrisShapes = {
     {{1, 1, 1, 1}}, // I 
@@ -15,13 +17,21 @@ std::vector<std::vector<std::vector<int>>> tetrisShapes = {
     {{7, 7, 7}, {0, 0, 7}} // J 
 };
 
+Piece getRandomPiece() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, tetrisShapes.size() - 1);
+    return Piece(tetrisShapes[dis(gen)]);
+}
+
 int main(int argc, char const *argv[]) {
     sf::RenderWindow window(sf::VideoMode(600, 800), "Tetris");
     window.setPosition(sf::Vector2i(400, 0));
 
     Board board(gridWidth, gridHeight);
     Piece piece(tetrisShapes[0]); 
-    piece.setPosition(3, 0); 
+    piece = getRandomPiece();
+    piece.setPosition(gridWidth / 2 - 1, 0);
 
     sf::Clock clock;
     float dropTime = 0.5f;
@@ -66,7 +76,12 @@ int main(int argc, char const *argv[]) {
             if (!board.canPlacePiece(piece)) {
                 piece.move(0, -1);
                 board.placePiece(piece);
+                board.checkLines();
+                piece = getRandomPiece();
                 piece.setPosition(gridWidth / 2 - 1, 0);
+                if (!board.canPlacePiece(piece)) {
+                    gameOver = true;
+                }
             }
             clock.restart();
         }

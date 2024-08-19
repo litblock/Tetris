@@ -14,6 +14,7 @@ class Board {
         bool canPlacePiece(const Piece& piece) const;
         void placePiece(const Piece& piece);
         void clearPiece(const Piece& piece);
+        void checkLines();
         
     private:
         int width;

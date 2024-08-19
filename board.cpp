@@ -80,3 +80,26 @@ void Board::clearPiece(const Piece& piece) {
         }
     }
 }
+
+void Board::checkLines() {
+    for (int y = height - 1; y >= 0; --y) {
+        bool fullLine = true;
+        for (int x = 0; x < width; ++x) {
+            if (board[y][x] == 0) {
+                fullLine = false;
+                break;
+            }
+        }
+        if (fullLine) {
+            for (int yy = y; yy > 0; --yy) {
+                for (int x = 0; x < width; ++x) {
+                    board[yy][x] = board[yy-1][x];
+                }
+            }
+            for (int x = 0; x < width; ++x) {
+                board[0][x] = 0;
+            }
+            ++y; 
+        }
+    }
+}
