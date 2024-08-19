@@ -12,8 +12,8 @@ class Board {
         void render(sf::RenderWindow &window, const Piece& piece);
         void setCell(int x, int y, int value);
         bool canPlacePiece(const Piece& piece) const;
-        void placePiece(const Piece& piece);
-        void clearPiece(const Piece& piece);
+        void placePiece(const Piece& piece) const;
+        void clearPiece(const Piece& piece) const;
         void checkLines();
         Piece getGhostPiece(const Piece& piece) const;
         

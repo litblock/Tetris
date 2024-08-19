@@ -1,4 +1,5 @@
 #include "board.h"
+#include <iostream>
 
 Board::Board(int width, int height) : width(width), height(height) {
     board.resize(height, std::vector<int>(width, 0));
@@ -36,21 +37,9 @@ void Board::render(sf::RenderWindow& window, const Piece& currentPiece) {
         for (int j = 0; j < static_cast<int>(ghostShape[i].size()); ++j) {
             if (ghostShape[i][j] != 0) {
                 sf::RectangleShape ghostCell(sf::Vector2f(cellSize - 1, cellSize - 1));
-                sf::Color ghostColor;
-                switch (ghostShape[i][j]) {
-                    case 1: ghostColor = sf::Color::Cyan; break;
-                    case 2: ghostColor = sf::Color::Magenta; break;
-                    case 3: ghostColor = sf::Color::Red; break;
-                    case 4: ghostColor = sf::Color::Green; break;
-                    case 5: ghostColor = sf::Color::Yellow; break;
-                    case 6: ghostColor = sf::Color::Blue; break;
-                    case 7: ghostColor = sf::Color(255, 165, 0); break;
-                    default: ghostColor = sf::Color::White; break;
-                }
-                ghostColor.a = 128; 
-                ghostCell.setFillColor(sf::Color::Transparent);  
-                ghostCell.setOutlineColor(ghostColor);  
-                ghostCell.setOutlineThickness(1);  
+                ghostCell.setFillColor(sf::Color(255, 255, 255, 50));  
+                ghostCell.setOutlineColor(sf::Color(255, 255, 255, 200)); 
+                ghostCell.setOutlineThickness(2);
                 ghostCell.setPosition((ghostX + j) * cellSize, (ghostY + i) * cellSize);
                 window.draw(ghostCell);
             }
@@ -93,12 +82,18 @@ bool Board::canPlacePiece(const Piece& piece) const {
     int x = piece.getX();
     int y = piece.getY();
 
-    for (size_t i = 0; i < shape.size(); ++i) {
-        for (size_t j = 0; j < shape[i].size(); ++j) {
+    for (int i = 0; i < static_cast<int>(shape.size()); ++i) {
+        for (int j = 0; j < static_cast<int>(shape[i].size()); ++j) {
             if (shape[i][j] != 0) {
                 int boardX = x + j;
                 int boardY = y + i;
-                if (boardX < 0 || boardX >= width || boardY < 0 || boardY >= height || board[boardY][boardX] != 0) {
+                
+                if (boardX < 0 || boardX >= width || boardY >= height) {
+                    return false;
+                }
+                
+            
+                if (boardY >= 0 && board[boardY][boardX] != 0) {
                     return false;
                 }
             }
@@ -107,7 +102,7 @@ bool Board::canPlacePiece(const Piece& piece) const {
     return true;
 }
 
-void Board::placePiece(const Piece& piece) {
+void Board::placePiece(const Piece& piece) const {
     const auto& shape = piece.getShape();
     int x = piece.getX();
     int y = piece.getY();
@@ -115,13 +110,17 @@ void Board::placePiece(const Piece& piece) {
     for (int i = 0; i < static_cast<int>(shape.size()); ++i) {
         for (int j = 0; j < static_cast<int>(shape[i].size()); ++j) {
             if (shape[i][j] != 0) {
-                setCell(x + j, y + i, shape[i][j]);
+                int boardX = x + j;
+                int boardY = y + i;
+                if (boardX >= 0 && boardX < width && boardY >= 0 && boardY < height) {
+                    const_cast<Board*>(this)->board[boardY][boardX] = shape[i][j];
+                }
             }
         }
     }
 }
 
-void Board::clearPiece(const Piece& piece) {
+void Board::clearPiece(const Piece& piece) const {
     const auto& shape = piece.getShape();
     int x = piece.getX();
     int y = piece.getY();
@@ -129,7 +128,11 @@ void Board::clearPiece(const Piece& piece) {
     for (int i = 0; i < static_cast<int>(shape.size()); ++i) {
         for (int j = 0; j < static_cast<int>(shape[i].size()); ++j) {
             if (shape[i][j] != 0) {
-                setCell(x + j, y + i, 0);
+                int boardX = x + j;
+                int boardY = y + i;
+                if (boardX >= 0 && boardX < width && boardY >= 0 && boardY < height) {
+                    const_cast<Board*>(this)->board[boardY][boardX] = 0;
+                }
             }
         }
     }
@@ -160,9 +163,26 @@ void Board::checkLines() {
 
 Piece Board::getGhostPiece(const Piece& piece) const {
     Piece ghostPiece = piece;
+    int moveCount = 0;
+    
+    std::cout << "Original piece position: (" << piece.getX() << ", " << piece.getY() << ")" << std::endl;
+
+    clearPiece(piece);
+    
     while (canPlacePiece(ghostPiece)) {
         ghostPiece.move(0, 1);
+        moveCount++;
     }
-    ghostPiece.move(0, -1); 
+    
+    if (moveCount > 0) {
+        ghostPiece.move(0, -1);  
+        moveCount--;
+    }
+    
+    placePiece(piece);
+    
+    std::cout << "Ghost piece moved down " << moveCount << " rows" << std::endl;
+    std::cout << "Final ghost piece position: (" << ghostPiece.getX() << ", " << ghostPiece.getY() << ")" << std::endl;
+    
     return ghostPiece;
 }
