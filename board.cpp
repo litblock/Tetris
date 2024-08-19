@@ -9,7 +9,7 @@ Board::~Board() {
     
 }
 
-void Board::render(sf::RenderWindow& window, const Piece& currentPiece) {
+void Board::render(sf::RenderWindow& window, const Piece& currentPiece, const std::queue<Piece>& upcomingPieces) {
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
             sf::RectangleShape cell(sf::Vector2f(cellSize - 1, cellSize - 1));
@@ -37,7 +37,7 @@ void Board::render(sf::RenderWindow& window, const Piece& currentPiece) {
         for (int j = 0; j < static_cast<int>(ghostShape[i].size()); ++j) {
             if (ghostShape[i][j] != 0) {
                 sf::RectangleShape ghostCell(sf::Vector2f(cellSize - 1, cellSize - 1));
-                ghostCell.setFillColor(sf::Color(255, 255, 255, 50));  
+                ghostCell.setFillColor(sf::Color(128, 128, 128, 100));
                 ghostCell.setOutlineColor(sf::Color(255, 255, 255, 200)); 
                 ghostCell.setOutlineThickness(2);
                 ghostCell.setPosition((ghostX + j) * cellSize, (ghostY + i) * cellSize);
@@ -69,6 +69,8 @@ void Board::render(sf::RenderWindow& window, const Piece& currentPiece) {
             }
         }
     }
+
+    renderUpcomingPieces(window, upcomingPieces);
 }
 
 void Board::setCell(int x, int y, int value) {
@@ -185,4 +187,37 @@ Piece Board::getGhostPiece(const Piece& piece) const {
     std::cout << "Final ghost piece position: (" << ghostPiece.getX() << ", " << ghostPiece.getY() << ")" << std::endl;
     
     return ghostPiece;
+}
+
+void Board::renderUpcomingPieces(sf::RenderWindow& window, const std::queue<Piece>& upcomingPieces) {
+    std::queue<Piece> tempQueue = upcomingPieces; 
+    int yOffset = 50;
+
+    for (int i = 0; i < 3 && !tempQueue.empty(); ++i) { 
+        Piece nextPiece = tempQueue.front();
+        tempQueue.pop();
+
+        int previewX = (width + 2) * cellSize;
+        int previewY = yOffset + i * 4 * cellSize;
+
+        const auto& shape = nextPiece.getShape();
+        for (size_t y = 0; y < shape.size(); ++y) {
+            for (size_t x = 0; x < shape[y].size(); ++x) {
+                if (shape[y][x] != 0) {
+                    sf::RectangleShape cell(sf::Vector2f(cellSize - 1, cellSize - 1));
+                    switch (shape[y][x]) {
+                        case 1: cell.setFillColor(sf::Color::Cyan); break;
+                        case 2: cell.setFillColor(sf::Color::Magenta); break;
+                        case 3: cell.setFillColor(sf::Color::Red); break;
+                        case 4: cell.setFillColor(sf::Color::Green); break;
+                        case 5: cell.setFillColor(sf::Color::Yellow); break;
+                        case 6: cell.setFillColor(sf::Color::Blue); break;
+                        case 7: cell.setFillColor(sf::Color(255, 165, 0)); break;
+                    }
+                    cell.setPosition(previewX + x * cellSize, previewY + y * cellSize);
+                    window.draw(cell);
+                }
+            }
+        }
+    }
 }

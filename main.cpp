@@ -29,9 +29,15 @@ int main(int argc, char const *argv[]) {
     window.setPosition(sf::Vector2i(400, 0));
 
     Board board(gridWidth, gridHeight);
-    Piece piece(tetrisShapes[0]); 
-    piece = getRandomPiece();
-    piece.setPosition(gridWidth / 2 - 1, 0);
+    std::queue<Piece> upcomingPieces;
+
+    for (int i = 0; i < 4; ++i) {
+        upcomingPieces.push(getRandomPiece());
+    }
+
+    Piece currentPiece = upcomingPieces.front();
+    upcomingPieces.pop();
+    currentPiece.setPosition(gridWidth / 2 - 1, 0);
 
     sf::Clock clock;
     float dropTime = 0.5f;
@@ -43,54 +49,57 @@ int main(int argc, char const *argv[]) {
                 window.close();
             }
             if (event.type == sf::Event::KeyPressed) {
-                board.clearPiece(piece);  
+                board.clearPiece(currentPiece);  
                 if (event.key.code == sf::Keyboard::Left) {
-                    piece.move(-1, 0);
-                    if (!board.canPlacePiece(piece)) {
-                        piece.move(1, 0); 
+                    currentPiece.move(-1, 0);
+                    if (!board.canPlacePiece(currentPiece)) {
+                        currentPiece.move(1, 0); 
                     }
                 } else if (event.key.code == sf::Keyboard::Right) {
-                    piece.move(1, 0);
-                    if (!board.canPlacePiece(piece)) {
-                        piece.move(-1, 0); 
+                    currentPiece.move(1, 0);
+                    if (!board.canPlacePiece(currentPiece)) {
+                        currentPiece.move(-1, 0); 
                     }
                 } else if (event.key.code == sf::Keyboard::Down) {
-                    piece.move(0, 1);
-                    if (!board.canPlacePiece(piece)) {
-                        piece.move(0, -1); 
+                    currentPiece.move(0, 1);
+                    if (!board.canPlacePiece(currentPiece)) {
+                        currentPiece.move(0, -1); 
                     }
                 } else if (event.key.code == sf::Keyboard::Up) {
-                    piece.rotate();
-                    if (!board.canPlacePiece(piece)) {
-                        piece.rotate(); 
-                        piece.rotate();
-                        piece.rotate();
+                    currentPiece.rotate();
+                    if (!board.canPlacePiece(currentPiece)) {
+                        currentPiece.rotate(); 
+                        currentPiece.rotate();
+                        currentPiece.rotate();
                     }
                 }
             }
         }
 
         if (clock.getElapsedTime().asSeconds() >= dropTime) {
-            board.clearPiece(piece);  
-            piece.move(0, 1);
-            if (!board.canPlacePiece(piece)) {
-                piece.move(0, -1);
-                board.placePiece(piece);
+            board.clearPiece(currentPiece);
+            currentPiece.move(0, 1);
+            if (!board.canPlacePiece(currentPiece)) {
+                currentPiece.move(0, -1);
+                board.placePiece(currentPiece);
                 board.checkLines();
-                piece = getRandomPiece();
-                piece.setPosition(gridWidth / 2 - 1, 0);
-                if (!board.canPlacePiece(piece)) {
+                
+                currentPiece = upcomingPieces.front();
+                upcomingPieces.pop();
+                currentPiece.setPosition(gridWidth / 2 - 1, 0);
+                
+                upcomingPieces.push(getRandomPiece());
+
+                if (!board.canPlacePiece(currentPiece)) {
                     gameOver = true;
+                    std::cout << "Game Over!" << std::endl;
                 }
             }
             clock.restart();
         }
-
-        board.placePiece(piece);
         window.clear();
-        board.render(window, piece);
-        window.display();
-        board.clearPiece(piece);  
+        board.render(window, currentPiece, upcomingPieces);
+        window.display(); 
     }
 
     return 0;
