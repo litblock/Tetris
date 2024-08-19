@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
 
         board.placePiece(piece);
         window.clear();
-        board.render(window);
+        board.render(window, piece);
         window.display();
         board.clearPiece(piece);  
     }

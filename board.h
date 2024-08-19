@@ -9,12 +9,13 @@ class Board {
 
         ~Board();
 
-        void render(sf::RenderWindow &window);
+        void render(sf::RenderWindow &window, const Piece& piece);
         void setCell(int x, int y, int value);
         bool canPlacePiece(const Piece& piece) const;
         void placePiece(const Piece& piece);
         void clearPiece(const Piece& piece);
         void checkLines();
+        Piece getGhostPiece(const Piece& piece) const;
         
     private:
         int width;
