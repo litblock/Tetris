@@ -12,6 +12,8 @@ all: $(TARGET)
 
 $(TARGET): $(SRCS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRCS) $(SFML_LIBS)
+	@echo "Build successful: $(TARGET) has been created."
 
 clean:
 	rm -f $(TARGET)
+	@echo "Clean successful: $(TARGET) has been removed."

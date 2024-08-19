@@ -34,6 +34,25 @@ void Board::setCell(int x, int y, int value) {
     }
 }
 
+bool Board::canPlacePiece(const Piece& piece) const {
+    const auto& shape = piece.getShape();
+    int x = piece.getX();
+    int y = piece.getY();
+
+    for (size_t i = 0; i < shape.size(); ++i) {
+        for (size_t j = 0; j < shape[i].size(); ++j) {
+            if (shape[i][j] != 0) {
+                int boardX = x + j;
+                int boardY = y + i;
+                if (boardX < 0 || boardX >= width || boardY < 0 || boardY >= height || board[boardY][boardX] != 0) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 void Board::placePiece(const Piece& piece) {
     const auto& shape = piece.getShape();
     int x = piece.getX();
@@ -43,6 +62,20 @@ void Board::placePiece(const Piece& piece) {
         for (int j = 0; j < static_cast<int>(shape[i].size()); ++j) {
             if (shape[i][j] != 0) {
                 setCell(x + j, y + i, shape[i][j]);
+            }
+        }
+    }
+}
+
+void Board::clearPiece(const Piece& piece) {
+    const auto& shape = piece.getShape();
+    int x = piece.getX();
+    int y = piece.getY();
+
+    for (int i = 0; i < static_cast<int>(shape.size()); ++i) {
+        for (int j = 0; j < static_cast<int>(shape[i].size()); ++j) {
+            if (shape[i][j] != 0) {
+                setCell(x + j, y + i, 0);
             }
         }
     }

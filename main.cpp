@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "board.h"
+
 const int gridWidth = 10;
 const int gridHeight = 20;
 
@@ -22,20 +23,59 @@ int main(int argc, char const *argv[]) {
     Piece piece(tetrisShapes[0]); 
     piece.setPosition(3, 0); 
 
-    while (window.isOpen())
-    {
+    sf::Clock clock;
+    float dropTime = 0.5f;
+
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if(event.type == sf::Event::Closed){
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
                 window.close();
             }
+            if (event.type == sf::Event::KeyPressed) {
+                board.clearPiece(piece);  
+                if (event.key.code == sf::Keyboard::Left) {
+                    piece.move(-1, 0);
+                    if (!board.canPlacePiece(piece)) {
+                        piece.move(1, 0); 
+                    }
+                } else if (event.key.code == sf::Keyboard::Right) {
+                    piece.move(1, 0);
+                    if (!board.canPlacePiece(piece)) {
+                        piece.move(-1, 0); 
+                    }
+                } else if (event.key.code == sf::Keyboard::Down) {
+                    piece.move(0, 1);
+                    if (!board.canPlacePiece(piece)) {
+                        piece.move(0, -1); 
+                    }
+                } else if (event.key.code == sf::Keyboard::Up) {
+                    piece.rotate();
+                    if (!board.canPlacePiece(piece)) {
+                        piece.rotate(); 
+                        piece.rotate();
+                        piece.rotate();
+                    }
+                }
+            }
         }
+
+        if (clock.getElapsedTime().asSeconds() >= dropTime) {
+            board.clearPiece(piece);  
+            piece.move(0, 1);
+            if (!board.canPlacePiece(piece)) {
+                piece.move(0, -1);
+                board.placePiece(piece);
+                piece.setPosition(gridWidth / 2 - 1, 0);
+            }
+            clock.restart();
+        }
+
         board.placePiece(piece);
         window.clear();
         board.render(window);
         window.display();
-        
+        board.clearPiece(piece);  
     }
 
     return 0;

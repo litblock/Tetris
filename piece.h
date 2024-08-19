@@ -9,6 +9,7 @@ class Piece {
         void rotate();
         const std::vector<std::vector<int>>& getShape() const;
         void setPosition(int x, int y);
+        void move(int dx, int dy);
         int getX() const;
         int getY() const;
 

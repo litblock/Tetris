@@ -13,7 +13,8 @@ class Board {
         void setCell(int x, int y, int value);
         bool canPlacePiece(const Piece& piece) const;
         void placePiece(const Piece& piece);
-
+        void clearPiece(const Piece& piece);
+        
     private:
         int width;
         int height;

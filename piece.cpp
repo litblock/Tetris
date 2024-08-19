@@ -17,6 +17,11 @@ void Piece::setPosition(int x, int y) {
     this->y = y;
 }
 
+void Piece::move(int dx, int dy) {
+    x += dx;
+    y += dy;
+}
+
 int Piece::getX() const {
     return x;
 }
