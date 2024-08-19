@@ -221,3 +221,23 @@ void Board::renderUpcomingPieces(sf::RenderWindow& window, const std::queue<Piec
         }
     }
 }
+
+void Board::renderGameOver(sf::RenderWindow& window) {
+    for (int i = 0; i < width; ++i) {
+        for (int j = 0; j < height; ++j) {
+            sf::RectangleShape cell(sf::Vector2f(cellSize - 1, cellSize - 1));
+            switch (board[j][i]) {
+                case 1: cell.setFillColor(sf::Color(0, 255, 255, 128)); break; 
+                case 2: cell.setFillColor(sf::Color(255, 0, 255, 128)); break; 
+                case 3: cell.setFillColor(sf::Color(255, 0, 0, 128)); break; 
+                case 4: cell.setFillColor(sf::Color(0, 255, 0, 128)); break; 
+                case 5: cell.setFillColor(sf::Color(255, 255, 0, 128)); break; 
+                case 6: cell.setFillColor(sf::Color(0, 0, 255, 128)); break; 
+                case 7: cell.setFillColor(sf::Color(255, 165, 0, 128)); break; 
+                default: cell.setFillColor(sf::Color(255, 255, 255, 32)); break; 
+            }
+            cell.setPosition(i * cellSize, j * cellSize);
+            window.draw(cell);
+        }
+    }
+}

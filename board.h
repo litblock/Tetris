@@ -17,6 +17,7 @@ class Board {
         void clearPiece(const Piece& piece) const;
         void checkLines();
         Piece getGhostPiece(const Piece& piece) const;
+        void renderGameOver(sf::RenderWindow& window);
         
     private:
         int width;

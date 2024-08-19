@@ -5,7 +5,11 @@
 
 const int gridWidth = 10;
 const int gridHeight = 20;
-bool gameOver = false;
+
+enum class GameState {
+    Playing,
+    GameOver
+};
 
 std::vector<std::vector<std::vector<int>>> tetrisShapes = {
     {{1, 1, 1, 1}}, // I 
@@ -30,6 +34,7 @@ int main(int argc, char const *argv[]) {
 
     Board board(gridWidth, gridHeight);
     std::queue<Piece> upcomingPieces;
+    GameState gameState = GameState::Playing;
 
     for (int i = 0; i < 4; ++i) {
         upcomingPieces.push(getRandomPiece());
@@ -42,60 +47,89 @@ int main(int argc, char const *argv[]) {
     sf::Clock clock;
     float dropTime = 0.5f;
 
+    sf::Font font;
+    if (!font.loadFromFile("JetBrainsMono-Medium.ttf")) { 
+        std::cerr << "Failed to load font!" << std::endl;
+        return 1;
+    }
+
+    sf::Text gameOverText;
+    gameOverText.setFont(font);
+    gameOverText.setString("Game Over!\nPress R to restart");
+    gameOverText.setCharacterSize(30);
+    gameOverText.setFillColor(sf::Color::White);
+    gameOverText.setPosition(400 - gameOverText.getGlobalBounds().width / 2, 400 - gameOverText.getGlobalBounds().height / 2);
+
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            if (event.type == sf::Event::KeyPressed) {
-                board.clearPiece(currentPiece);  
-                if (event.key.code == sf::Keyboard::Left) {
-                    currentPiece.move(-1, 0);
-                    if (!board.canPlacePiece(currentPiece)) {
-                        currentPiece.move(1, 0); 
-                    }
-                } else if (event.key.code == sf::Keyboard::Right) {
-                    currentPiece.move(1, 0);
-                    if (!board.canPlacePiece(currentPiece)) {
-                        currentPiece.move(-1, 0); 
-                    }
-                } else if (event.key.code == sf::Keyboard::Down) {
-                    currentPiece.move(0, 1);
-                    if (!board.canPlacePiece(currentPiece)) {
-                        currentPiece.move(0, -1); 
-                    }
-                } else if (event.key.code == sf::Keyboard::Up) {
-                    currentPiece.rotate();
-                    if (!board.canPlacePiece(currentPiece)) {
-                        currentPiece.rotate(); 
+            if (gameState == GameState::Playing) {
+                if (event.type == sf::Event::KeyPressed) {
+                    board.clearPiece(currentPiece);  
+                    if (event.key.code == sf::Keyboard::Left) {
+                        currentPiece.move(-1, 0);
+                        if (!board.canPlacePiece(currentPiece)) {
+                            currentPiece.move(1, 0); 
+                        }
+                    } else if (event.key.code == sf::Keyboard::Right) {
+                        currentPiece.move(1, 0);
+                        if (!board.canPlacePiece(currentPiece)) {
+                            currentPiece.move(-1, 0); 
+                        }
+                    } else if (event.key.code == sf::Keyboard::Down) {
+                        currentPiece.move(0, 1);
+                        if (!board.canPlacePiece(currentPiece)) {
+                            currentPiece.move(0, -1); 
+                        }
+                    } else if (event.key.code == sf::Keyboard::Up) {
                         currentPiece.rotate();
-                        currentPiece.rotate();
+                        if (!board.canPlacePiece(currentPiece)) {
+                            currentPiece.rotate(); 
+                            currentPiece.rotate();
+                            currentPiece.rotate();
+                        }
                     }
-                }
+                } 
+            } else if (gameState == GameState::GameOver) {
+                if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R) {
+                    board = Board(gridWidth, gridHeight);
+                    while (!upcomingPieces.empty()) upcomingPieces.pop();
+                    for (int i = 0; i < 4; ++i) {
+                        upcomingPieces.push(getRandomPiece());
+                    }
+                    currentPiece = upcomingPieces.front();
+                    upcomingPieces.pop();
+                    currentPiece.setPosition(gridWidth / 2 - 1, 0);
+                    gameState = GameState::Playing;
+                }     
             }
         }
 
-        if (clock.getElapsedTime().asSeconds() >= dropTime) {
-            board.clearPiece(currentPiece);
-            currentPiece.move(0, 1);
-            if (!board.canPlacePiece(currentPiece)) {
-                currentPiece.move(0, -1);
-                board.placePiece(currentPiece);
-                board.checkLines();
-                
-                currentPiece = upcomingPieces.front();
-                upcomingPieces.pop();
-                currentPiece.setPosition(gridWidth / 2 - 1, 0);
-                
-                upcomingPieces.push(getRandomPiece());
-
+        if (gameState == GameState::Playing) {
+            if (clock.getElapsedTime().asSeconds() >= dropTime) {
+                board.clearPiece(currentPiece);
+                currentPiece.move(0, 1);
                 if (!board.canPlacePiece(currentPiece)) {
-                    gameOver = true;
-                    std::cout << "Game Over!" << std::endl;
+                    currentPiece.move(0, -1);
+                    board.placePiece(currentPiece);
+                    board.checkLines();
+                    
+                    currentPiece = upcomingPieces.front();
+                    upcomingPieces.pop();
+                    currentPiece.setPosition(gridWidth / 2 - 1, 0);
+                    
+                    upcomingPieces.push(getRandomPiece());
+
+                    if (!board.canPlacePiece(currentPiece)) {
+                        gameState = GameState::GameOver;
+                    }
                 }
+                clock.restart();
             }
-            clock.restart();
         }
         window.clear();
         board.render(window, currentPiece, upcomingPieces);
