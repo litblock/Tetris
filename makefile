@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++17 -Wall
 
 SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 
-SRCS = main.cpp
+SRCS = main.cpp board.cpp
 
 TARGET = tetris
 

@@ -1,10 +1,15 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
+#include "board.h"
+const int gridWidth = 10;
+const int gridHeight = 20;
 
 int main(int argc, char const *argv[])
 {
-    sf::RenderWindow window(sf::VideoMode(200,200), "Tetris");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Blue);
+    sf::RenderWindow window(sf::VideoMode(600, 800), "Tetris");
+    window.setPosition(sf::Vector2i(400, 0));
+
+    Board board(gridWidth, gridHeight);
 
     while (window.isOpen())
     {
@@ -16,7 +21,7 @@ int main(int argc, char const *argv[])
             }
         }
         window.clear();
-        window.draw(shape);
+        board.render(window);
         window.display();
         
     }
