@@ -12,7 +12,16 @@ void Board::render(sf::RenderWindow& window) {
     for (int i = 0; i < width; ++i) {
         for (int j = 0; j < height; ++j) {
             sf::RectangleShape cell(sf::Vector2f(cellSize - 1, cellSize - 1));
-            cell.setFillColor(sf::Color::White);
+            switch (board[j][i]) {
+                case 1: cell.setFillColor(sf::Color::Cyan); break; // I 
+                case 2: cell.setFillColor(sf::Color::Magenta); break; // T 
+                case 3: cell.setFillColor(sf::Color::Red); break; // Z 
+                case 4: cell.setFillColor(sf::Color::Green); break; // S 
+                case 5: cell.setFillColor(sf::Color::Yellow); break; // O 
+                case 6: cell.setFillColor(sf::Color::Blue); break; // L 
+                case 7: cell.setFillColor(sf::Color(255, 165, 0)); break; // J 
+                default: cell.setFillColor(sf::Color::White); break; // empty
+            }
             cell.setPosition(i * cellSize, j * cellSize);
             window.draw(cell);
         }
@@ -22,5 +31,19 @@ void Board::render(sf::RenderWindow& window) {
 void Board::setCell(int x, int y, int value) {
     if (x >= 0 && x < width && y >= 0 && y < height) {
         board[y][x] = value;
+    }
+}
+
+void Board::placePiece(const Piece& piece) {
+    const auto& shape = piece.getShape();
+    int x = piece.getX();
+    int y = piece.getY();
+
+    for (int i = 0; i < static_cast<int>(shape.size()); ++i) {
+        for (int j = 0; j < static_cast<int>(shape[i].size()); ++j) {
+            if (shape[i][j] != 0) {
+                setCell(x + j, y + i, shape[i][j]);
+            }
+        }
     }
 }
