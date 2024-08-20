@@ -15,9 +15,10 @@ class Board {
         bool canPlacePiece(const Piece& piece) const;
         void placePiece(const Piece& piece) const;
         void clearPiece(const Piece& piece) const;
-        void checkLines();
+        int checkLines();
         Piece getGhostPiece(const Piece& piece) const;
         void renderGameOver(sf::RenderWindow& window);
+        void moveFloatingPiecesDown();
         
     private:
         int width;

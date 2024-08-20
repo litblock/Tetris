@@ -54,6 +54,7 @@ int main(int argc, char const *argv[]) {
 
     sf::Clock clock;
     float dropTime = 0.5f;
+    int score = 0;
 
     sf::Font font;
     if (!font.loadFromFile("JetBrainsMono-Medium.ttf")) { 
@@ -61,12 +62,19 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
+    sf::Text scoreText;
+    scoreText.setFont(font);
+    scoreText.setCharacterSize(24);
+    scoreText.setFillColor(sf::Color::Blue);
+    scoreText.setPosition(450, 760);
+    scoreText.setString("Score: 0");
+
     sf::Text gameOverText;
     gameOverText.setFont(font);
     gameOverText.setString("Game Over!\nPress R to restart");
     gameOverText.setCharacterSize(30);
     gameOverText.setFillColor(sf::Color::White);
-    gameOverText.setPosition(400 - gameOverText.getGlobalBounds().width / 2, 400 - gameOverText.getGlobalBounds().height / 2);
+    gameOverText.setPosition(300 - gameOverText.getGlobalBounds().width / 2, 400 - gameOverText.getGlobalBounds().height / 2);
 
 
     while (window.isOpen()) {
@@ -101,10 +109,14 @@ int main(int argc, char const *argv[]) {
                             currentPiece.rotate();
                             currentPiece.rotate();
                         }
+                    } else if (event.key.code == sf::Keyboard::Space) {
+                        while (board.canPlacePiece(currentPiece)) {
+                            currentPiece.move(0, 1);
+                        }
+                        currentPiece.move(0, -1);
                     }
                 } 
-            } else if (gameState == GameState::GameOver) {
-                
+            } else if (gameState == GameState::GameOver) {       
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R) {
                     board = Board(gridWidth, gridHeight);
                     while (!upcomingPieces.empty()) upcomingPieces.pop();
@@ -115,6 +127,8 @@ int main(int argc, char const *argv[]) {
                     upcomingPieces.pop();
                     currentPiece.setPosition(gridWidth / 2 - 1, 0);
                     gameState = GameState::Playing;
+                    score = 0; 
+                    scoreText.setString("Score: 0"); 
                 }     
             }
         }
@@ -126,24 +140,26 @@ int main(int argc, char const *argv[]) {
                 if (!board.canPlacePiece(currentPiece)) {
                     currentPiece.move(0, -1);
                     board.placePiece(currentPiece);
-                    board.checkLines();
-                    
+                    int lines = board.checkLines();
+                    score += lines * 100;
                     currentPiece = upcomingPieces.front();
                     upcomingPieces.pop();
                     currentPiece.setPosition(gridWidth / 2 - 1, 0);
-                    
+                    scoreText.setString("Score: " + std::to_string(score));
                     upcomingPieces.push(getRandomPiece());
                     //std::cout << "Upcoming pieces: " << std::endl;
                     if (!board.canPlacePiece(currentPiece)) {
                         std::cout << "Game Over!" << std::endl;
                         gameState = GameState::GameOver;
                     }
+                    clock.restart();
                 }
                 clock.restart();
             }
         }
         window.clear();
         board.render(window, currentPiece, upcomingPieces);
+        window.draw(scoreText);
 
         if (gameState == GameState::GameOver) {
             window.clear();

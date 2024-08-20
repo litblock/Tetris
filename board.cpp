@@ -140,7 +140,8 @@ void Board::clearPiece(const Piece& piece) const {
     }
 }
 
-void Board::checkLines() {
+int Board::checkLines() {
+    int lines = 0;
     for (int y = height - 1; y >= 0; --y) {
         bool fullLine = true;
         for (int x = 0; x < width; ++x) {
@@ -159,8 +160,10 @@ void Board::checkLines() {
                 board[0][x] = 0;
             }
             ++y; 
+            lines++;
         }
     }
+    return lines;
 }
 
 Piece Board::getGhostPiece(const Piece& piece) const {
@@ -241,3 +244,4 @@ void Board::renderGameOver(sf::RenderWindow& window) {
         }
     }
 }
+
