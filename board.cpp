@@ -245,61 +245,18 @@ void Board::renderGameOver(sf::RenderWindow& window) {
 }
 
 void Board::moveFloatingPiecesDown() {
-    std::vector<std::vector<bool>> visited(height, std::vector<bool>(width, false));
-
-    for (int y = height - 1; y >= 0; --y) {
+    for (int y = height - 2; y >= 0; --y) {
         for (int x = 0; x < width; ++x) {
-            if (board[y][x] != 0 && !visited[y][x]) {
-                std::vector<std::pair<int, int>> piece;
-                findConnectedBlocks(x, y, visited, piece);
-
-                int dropDistance = calculateDropDistance(piece);
-
-                for (const auto& block : piece) {
-                    board[block.second + dropDistance][block.first] = board[block.second][block.first];
-                    board[block.second][block.first] = 0;
+            if (board[y][x] != 0) {  
+                int newY = y;
+                while (newY < height - 1 && board[newY + 1][x] == 0) {
+                    newY++;
+                }
+                if (newY != y) {
+                    board[newY][x] = board[y][x];
+                    board[y][x] = 0;
                 }
             }
         }
     }
-}
-
-void Board::findConnectedBlocks(int x, int y, std::vector<std::vector<bool>>& visited, std::vector<std::pair<int, int>>& piece) {
-    std::queue<std::pair<int, int>> q;
-    q.push({x, y});
-    visited[y][x] = true;
-
-    while (!q.empty()) {
-        auto [cx, cy] = q.front();
-        q.pop();
-        piece.push_back({cx, cy});
-
-        for (const auto& [dx, dy] : std::vector<std::pair<int, int>>{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}) {
-            int nx = cx + dx;
-            int ny = cy + dy;
-
-            if (nx >= 0 && nx < width && ny >= 0 && ny < height && board[ny][nx] != 0 && !visited[ny][nx]) {
-                visited[ny][nx] = true;
-                q.push({nx, ny});
-            }
-        }
-    }
-}
-
-int Board::calculateDropDistance(const std::vector<std::pair<int, int>>& piece) {
-    int dropDistance = height;
-
-    for (const auto& block : piece) {
-        int x = block.first;
-        int y = block.second;
-
-        int distance = 0;
-        while (y + distance + 1 < height && board[y + distance + 1][x] == 0) {
-            distance++;
-        }
-
-        dropDistance = std::min(dropDistance, distance);
-    }
-
-    return dropDistance;
 }
