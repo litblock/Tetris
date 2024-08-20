@@ -19,6 +19,8 @@ class Board {
         Piece getGhostPiece(const Piece& piece) const;
         void renderGameOver(sf::RenderWindow& window);
         void moveFloatingPiecesDown();
+        void findConnectedBlocks(int x, int y, std::vector<std::vector<bool>>& visited, std::vector<std::pair<int, int>>& connectedBlocks);
+        int calculateDropDistance(const std::vector<std::pair<int, int>>& piece);
         
     private:
         int width;

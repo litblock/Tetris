@@ -80,7 +80,7 @@ int main(int argc, char const *argv[]) {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
-            std::cout << "Current GameState: " << gameStateToString(gameState) << std::endl;
+            //std::cout << "Current GameState: " << gameStateToString(gameState) << std::endl;
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
