@@ -167,7 +167,7 @@ Piece Board::getGhostPiece(const Piece& piece) const {
     Piece ghostPiece = piece;
     int moveCount = 0;
     
-    std::cout << "Original piece position: (" << piece.getX() << ", " << piece.getY() << ")" << std::endl;
+    //std::cout << "Original piece position: (" << piece.getX() << ", " << piece.getY() << ")" << std::endl;
 
     clearPiece(piece);
     
@@ -183,8 +183,8 @@ Piece Board::getGhostPiece(const Piece& piece) const {
     
     placePiece(piece);
     
-    std::cout << "Ghost piece moved down " << moveCount << " rows" << std::endl;
-    std::cout << "Final ghost piece position: (" << ghostPiece.getX() << ", " << ghostPiece.getY() << ")" << std::endl;
+    //std::cout << "Ghost piece moved down " << moveCount << " rows" << std::endl;
+    //std::cout << "Final ghost piece position: (" << ghostPiece.getX() << ", " << ghostPiece.getY() << ")" << std::endl;
     
     return ghostPiece;
 }

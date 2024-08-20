@@ -11,6 +11,14 @@ enum class GameState {
     GameOver
 };
 
+std::string gameStateToString(GameState state) {
+    switch (state) {
+        case GameState::Playing: return "Playing";
+        case GameState::GameOver: return "Game Over";
+        default: return "Unknown";
+    }
+}
+
 std::vector<std::vector<std::vector<int>>> tetrisShapes = {
     {{1, 1, 1, 1}}, // I 
     {{2, 2, 2}, {0, 2, 0}}, // T 
@@ -64,6 +72,7 @@ int main(int argc, char const *argv[]) {
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
+            std::cout << "Current GameState: " << gameStateToString(gameState) << std::endl;
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
@@ -95,6 +104,7 @@ int main(int argc, char const *argv[]) {
                     }
                 } 
             } else if (gameState == GameState::GameOver) {
+                
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::R) {
                     board = Board(gridWidth, gridHeight);
                     while (!upcomingPieces.empty()) upcomingPieces.pop();
@@ -123,8 +133,9 @@ int main(int argc, char const *argv[]) {
                     currentPiece.setPosition(gridWidth / 2 - 1, 0);
                     
                     upcomingPieces.push(getRandomPiece());
-
+                    //std::cout << "Upcoming pieces: " << std::endl;
                     if (!board.canPlacePiece(currentPiece)) {
+                        std::cout << "Game Over!" << std::endl;
                         gameState = GameState::GameOver;
                     }
                 }
@@ -133,6 +144,13 @@ int main(int argc, char const *argv[]) {
         }
         window.clear();
         board.render(window, currentPiece, upcomingPieces);
+
+        if (gameState == GameState::GameOver) {
+            window.clear();
+            board.renderGameOver(window);
+            window.draw(gameOverText);
+        }
+    
         window.display(); 
     }
 
