@@ -159,7 +159,7 @@ int Board::checkLines() {
             for (int x = 0; x < width; ++x) {
                 board[0][x] = 0;
             }
-            ++y; 
+            y--;
             lines++;
         }
     }
@@ -245,3 +245,19 @@ void Board::renderGameOver(sf::RenderWindow& window) {
     }
 }
 
+void Board::moveFloatingPiecesDown() {
+    for (int y = height - 2; y >= 0; --y) {
+        for (int x = 0; x < width; ++x) {
+            if (board[y][x] != 0) {  
+                int newY = y;
+                while (newY < height - 1 && board[newY + 1][x] == 0) {
+                    newY++;
+                }
+                if (newY != y) {
+                    board[newY][x] = board[y][x];
+                    board[y][x] = 0;
+                }
+            }
+        }
+    }
+}

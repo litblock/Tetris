@@ -141,6 +141,9 @@ int main(int argc, char const *argv[]) {
                     currentPiece.move(0, -1);
                     board.placePiece(currentPiece);
                     int lines = board.checkLines();
+                    if (lines > 0) {
+                        board.moveFloatingPiecesDown(); 
+                    }
                     score += lines * 100;
                     currentPiece = upcomingPieces.front();
                     upcomingPieces.pop();
